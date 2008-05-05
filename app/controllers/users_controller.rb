@@ -3,6 +3,10 @@ class UsersController < ApplicationController
   before_filter :find_user, :only => [:update, :show, :edit, :suspend, :unsuspend, :destroy, :purge]
   before_filter :login_required, :only => [:settings, :update]
   
+  # BrainBuster Captcha
+  before_filter :create_brain_buster, :only => [:new]
+  before_filter :validate_brain_buster, :only => [:create]
+  
   def index
     @users = current_site.users.paginate :all, :page => current_page
   end
@@ -89,5 +93,9 @@ protected
   
   def authorized?
     admin? || params[:id].blank? || @user == current_user
+  end
+  
+  def render_or_redirect_for_captcha_failure
+    render :action => 'new'
   end
 end
